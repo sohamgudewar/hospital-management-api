@@ -1,14 +1,16 @@
-# Hospital Management System API
+# Hospital Management System API prototype
 
-A comprehensive REST API built with FastAPI for managing hospital operations, including patient records, doctor information, admin authentication, and insurance premium prediction using machine learning.
+A learning prototype built with FastAPI and Streamlit. It contains routes for patient records, doctor information, admin login, and insurance-premium classification.
+
+> **Current status:** `model/predict.py` requires `model/model1.pkl`, but that model artifact is not committed. The application cannot import the insurance router or start successfully until a compatible model file is supplied. This repository has no automated tests or evidence of HIPAA compliance and must not be represented as production-ready.
 
 ## Features
 
-- **Patient Management**: Complete CRUD operations for patient records
+- **Patient Management**: CRUD route handlers for patient records
 - **Doctor Management**: Manage doctor profiles and specialties
-- **Admin Authentication**: Secure JWT-based authentication for admin users
+- **Admin Authentication**: bcrypt password hashing and short-lived JWTs; the current signing secret is a hard-coded placeholder
 - **Insurance Premium Prediction**: ML-powered insurance premium category prediction based on user demographics and lifestyle factors
-- **PostgreSQL Database**: Robust database management with SQLAlchemy ORM
+- **PostgreSQL Database**: SQLAlchemy-based PostgreSQL access
 - **RESTful API**: Well-structured API endpoints following REST principles
 - **Streamlit Frontend**: User-friendly web interface for all operations
 
@@ -25,7 +27,7 @@ The Streamlit frontend provides an intuitive interface for:
   - Manage doctor specialties
 - **Insurance Premium Prediction**:
   - Interactive form for user input
-  - Real-time BMI and risk calculations
+  - Client-side BMI and risk calculations from form values
   - Visual probability distribution
   - Model health status
 - **Settings**: Configure API URL and manage session
@@ -237,7 +239,7 @@ FastAPI/
 │   ├── doctors.py        # Doctor management routes
 │   └── insurance.py      # Insurance premium prediction routes
 └── model/
-    ├── model1.pkl        # Trained ML model
+    ├── model1.pkl        # Required at runtime, but not committed
     └── predict.py        # Prediction logic
 ```
 
@@ -245,7 +247,9 @@ FastAPI/
 
 - **JWT Secret Key**: The current secret key in `router/auth.py` should be changed in production. Use a secure, randomly generated key.
 - **Password Hashing**: Passwords are hashed using bcrypt before storage.
-- **Token Expiration**: Access tokens expire after 20 minutes (configurable).
+- **Token Expiration**: Access tokens expire after 20 minutes.
+- **Authorization gap**: Patient and doctor operations are not consistently protected by authentication or ownership checks.
+- **Model evidence gap**: No model artifact, evaluation results, accuracy metrics, or calibration report is included. Predictions are not insurance quotes or medical/financial advice.
 
 ## Development
 
