@@ -1,5 +1,8 @@
 # Hospital Management System API prototype
 
+[![Status: Learning prototype](https://img.shields.io/badge/status-learning_prototype-64748B)](#features)
+[![Setup: Model artifact required](https://img.shields.io/badge/setup-model_artifact_required-B45309)](#features)
+
 A learning prototype built with FastAPI and Streamlit. It contains routes for patient records, doctor information, admin login, and insurance-premium classification.
 
 > **Current status:** `model/predict.py` requires `model/model1.pkl`, but that model artifact is not committed. The application cannot import the insurance router or start successfully until a compatible model file is supplied. This repository has no automated tests or evidence of HIPAA compliance and must not be represented as production-ready.
