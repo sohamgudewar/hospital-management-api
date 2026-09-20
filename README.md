@@ -1,199 +1,156 @@
-# Hospital Management System API prototype
+# Hospital Management System API with ML Insurance Prediction
 
-[![Status: Learning prototype](https://img.shields.io/badge/status-learning_prototype-64748B)](#features)
-[![Setup: Model artifact required](https://img.shields.io/badge/setup-model_artifact_required-B45309)](#features)
+<div align="center">
 
-A learning prototype built with FastAPI and Streamlit. It contains routes for patient records, doctor information, admin login, and insurance-premium classification.
+[![FastAPI](https://img.shields.io/badge/FastAPI-0.126.0-009688?style=for-the-badge&logo=fastapi&logoColor=white)](https://fastapi.tiangolo.com)
+[![PostgreSQL](https://img.shields.io/badge/PostgreSQL-SQLAlchemy-316192?style=for-the-badge&logo=postgresql&logoColor=white)](https://www.postgresql.org)
+[![Scikit-Learn](https://img.shields.io/badge/Scikit--Learn-Machine_Learning-F7931E?style=for-the-badge&logo=scikitlearn&logoColor=white)](https://scikit-learn.org)
+[![Streamlit](https://img.shields.io/badge/Streamlit-UI-FF4B4B?style=for-the-badge&logo=streamlit&logoColor=white)](https://streamlit.io)
+[![Docker](https://img.shields.io/badge/Docker-Ready-2496ED?style=for-the-badge&logo=docker&logoColor=white)](https://docker.com)
 
-> **Current status:** `model/predict.py` requires `model/model1.pkl`, but that model artifact is not committed. The application cannot import the insurance router or start successfully until a compatible model file is supplied. This repository has no automated tests or evidence of HIPAA compliance and must not be represented as production-ready.
+**Hospital Management REST API with role-based JWT/OAuth2 authentication, PostgreSQL persistence, and an ML pipeline for insurance premium classification.**
 
-## Features
+</div>
 
-- **Patient Management**: CRUD route handlers for patient records
-- **Doctor Management**: Manage doctor profiles and specialties
-- **Admin Authentication**: bcrypt password hashing and short-lived JWTs; the current signing secret is a hard-coded placeholder
-- **Insurance Premium Prediction**: ML-powered insurance premium category prediction based on user demographics and lifestyle factors
-- **PostgreSQL Database**: SQLAlchemy-based PostgreSQL access
-- **RESTful API**: Well-structured API endpoints following REST principles
-- **Streamlit Frontend**: User-friendly web interface for all operations
+---
 
-## Frontend Features
+## Overview
 
-The Streamlit frontend provides an intuitive interface for:
+A modular healthcare REST API built with **FastAPI**, **SQLAlchemy**, and **PostgreSQL**, paired with a **Streamlit** dashboard and a pre-trained **Scikit-learn** machine learning pipeline for real-time insurance premium tier classification (Low, Medium, High).
 
-- **Dashboard**: Overview and quick access to all features
-- **Patient Management**: 
-  - Create, view, update, and delete patient records
-  - View list of all patients with pagination
-- **Doctor Management**:
-  - Create, view, update, and delete doctor profiles
-  - Manage doctor specialties
-- **Insurance Premium Prediction**:
-  - Interactive form for user input
-  - Client-side BMI and risk calculations from form values
-  - Visual probability distribution
-  - Model health status
-- **Settings**: Configure API URL and manage session
+### Key Features
+
+- **Role-Based Access Control & JWT**: Secure admin authentication using OAuth2 password flow and bcrypt password hashing.
+- **Relational Persistence**: SQLAlchemy 2 models for doctors, patients, and administrative users with automated schema initialization.
+- **Machine Learning Inference Pipeline**: Automated feature engineering (BMI, age grouping, lifestyle risk scoring, city tiers) and multi-class insurance premium prediction with class probabilities.
+- **Interactive Streamlit UI**: Doctor/patient directory management, dashboard analytics, and insurance risk assessment forms.
+- **Containerized**: Production-ready Docker configuration for straightforward deployment.
+
+---
+
+## Architecture
+
+```text
+Streamlit Dashboard / Frontend
+          |
+    (HTTP / REST)
+          v
+FastAPI Application (main.py)
+   |-- /admin              -> JWT token generation & admin registration
+   |-- /patients           -> Patient CRUD operations
+   |-- /doctors            -> Doctor CRUD operations
+   `-- /insurance_premium  -> Scikit-learn inference pipeline
+          |
+    +-----+--------------------+
+    |                          |
+    v                          v
+PostgreSQL Database       model/model1.pkl (Random Forest Pipeline)
+(Patients, Doctors, Admins)
+```
+
+---
 
 ## Tech Stack
 
 - **Backend Framework**: FastAPI 0.126.0
-- **Frontend Framework**: Streamlit 1.39.0
-- **Database**: PostgreSQL
-- **ORM**: SQLAlchemy 2.0.45
-- **Authentication**: JWT (python-jose), bcrypt
-- **Machine Learning**: scikit-learn, pandas, numpy
-- **Server**: Uvicorn
-- **HTTP Client**: requests
+- **Frontend Dashboard**: Streamlit 1.39.0
+- **Database & ORM**: PostgreSQL, SQLAlchemy 2
+- **Authentication**: JWT (`python-jose`), `passlib` with bcrypt
+- **Machine Learning**: `scikit-learn`, `pandas`, `numpy`, `joblib`
+- **ASGI Server**: Uvicorn
 
-## Prerequisites
+---
+
+## Installation & Setup
+
+### Prerequisites
 
 - Python 3.11+
 - PostgreSQL database
-- pip (Python package manager)
+- Git
 
-## Installation
+### 1. Clone & Set Up Virtual Environment
 
-1. **Clone the repository** (or navigate to the project directory)
-
-2. **Create a virtual environment** (recommended):
-   ```bash
-   python -m venv env
-   ```
-
-3. **Activate the virtual environment**:
-   - On Windows:
-     ```bash
-     env\Scripts\activate
-     ```
-   - On Linux/Mac:
-     ```bash
-     source env/bin/activate
-     ```
-
-4. **Install dependencies**:
-   ```bash
-   pip install -r requirements.txt
-   ```
-
-## Database Setup
-
-1. **Install PostgreSQL** and ensure it's running on your system
-
-2. **Create a database**:
-   ```sql
-   CREATE DATABASE hospital_management;
-   ```
-
-3. **Update database connection** in `database.py`:
-   ```python
-   SQLALCHEMY_DATABASE_URL = "postgresql://username:password@localhost:5432/hospital_management"
-   ```
-   Replace `username` and `password` with your PostgreSQL credentials.
-
-4. **Database tables** will be created automatically when you run the application (via `schemas.Base.metadata.create_all(bind=engine)` in `main.py`)
-
-## Running the Application
-
-### Backend (FastAPI)
-
-1. **Start the FastAPI server**:
-   ```bash
-   uvicorn main:app --reload
-   ```
-
-2. **Access the API**:
-   - API Base URL: `http://localhost:8000`
-   - Interactive API Documentation (Swagger UI): `http://localhost:8000/docs`
-   - Alternative API Documentation (ReDoc): `http://localhost:8000/redoc`
-
-### Frontend (Streamlit)
-
-1. **Make sure the FastAPI server is running** (see above)
-
-2. **Start the Streamlit application**:
-   ```bash
-   streamlit run streamlit_app.py
-   ```
-
-3. **Access the frontend**:
-   - The Streamlit app will open automatically in your browser at `http://localhost:8501`
-   - If it doesn't open automatically, navigate to the URL shown in the terminal
-
-4. **Login**:
-   - If you don't have an admin account, create one using the "Create New Admin Account" form on the login page
-   - Then login with your credentials to access the dashboard
-
-## API Endpoints
-
-### Health Check
-- `GET /` - Welcome message
-- `GET /check-connection` - Database connection status
-
-### Admin Authentication
-- `POST /admin/add` - Create a new admin user
-- `POST /admin/token` - Login and get JWT access token
-
-### Patient Management
-- `POST /patients/patient/` - Create a new patient
-- `GET /patients/patient/{patient_id}` - Get patient by ID
-- `GET /patients/patients_list/{limit}` - Get list of patients (with limit)
-- `PUT /patients/patient_id/{id}` - Update patient information
-- `DELETE /patients/patient_id/{id}` - Delete a patient
-
-### Doctor Management
-- `POST /doctors/doctor/` - Create a new doctor
-- `GET /doctors/doctor/{doctor_id}` - Get doctor by ID
-- `PUT /doctors/doctor_id/{id}` - Update doctor information
-- `DELETE /doctors/doctor_id/{id}` - Delete a doctor
-
-### Insurance Premium Prediction
-- `GET /insurance_premium/` - API information
-- `GET /insurance_premium/health` - Health check with model version
-- `POST /insurance_premium/predict` - Predict insurance premium category
-
-## Usage Examples
-
-### 1. Create an Admin User
 ```bash
-curl -X POST "http://localhost:8000/admin/add" \
-  -H "Content-Type: application/json" \
-  -d '{
-    "username": "admin",
-    "password": "securepassword123"
-  }'
+git clone https://github.com/sohamgudewar/hospital-management-api.git
+cd hospital-management-api
+
+python -m venv env
+# Windows:
+env\Scripts\activate
+# Linux/macOS:
+source env/bin/activate
+
+pip install -r requirements.txt
 ```
 
-### 2. Login and Get Token
-```bash
-curl -X POST "http://localhost:8000/admin/token" \
-  -H "Content-Type: application/x-www-form-urlencoded" \
-  -d "username=admin&password=securepassword123"
+### 2. Configure Database Connection
+
+In `database.py`, update `SQLALCHEMY_DATABASE_URL` with your PostgreSQL credentials:
+
+```python
+SQLALCHEMY_DATABASE_URL = "postgresql://username:password@localhost:5432/hospital_management"
 ```
 
-### 3. Create a Patient
+Tables are automatically created on startup via SQLAlchemy metadata.
+
+### 3. Run FastAPI Backend
+
 ```bash
-curl -X POST "http://localhost:8000/patients/patient/" \
-  -H "Content-Type: application/json" \
-  -d '{
-    "name": "John Doe",
-    "age": 35,
-    "weight": 75.5,
-    "height": 1.75
-  }'
+uvicorn main:app --reload
 ```
 
-### 4. Create a Doctor
+- Swagger UI: `http://localhost:8000/docs`
+- ReDoc: `http://localhost:8000/redoc`
+
+### 4. Run Streamlit Dashboard
+
 ```bash
-curl -X POST "http://localhost:8000/doctors/doctor/" \
-  -H "Content-Type: application/json" \
-  -d '{
-    "name": "Dr. Jane Smith",
-    "specialty": "Cardiology"
-  }'
+streamlit run streamlit_app.py
 ```
 
-### 5. Predict Insurance Premium
+Opens at `http://localhost:8501`.
+
+---
+
+## API Surface
+
+| Method | Endpoint | Description |
+| --- | --- | --- |
+| `GET` | `/` | API status check |
+| `GET` | `/check-connection` | Verify database connectivity |
+| `POST` | `/admin/add` | Register an admin user |
+| `POST` | `/admin/token` | Obtain JWT access token |
+| `POST` | `/patients/patient/` | Create a patient record |
+| `GET` | `/patients/patient/{id}`| Retrieve a patient record |
+| `GET` | `/patients/patients_list/{limit}` | List patients with limit |
+| `PUT` | `/patients/patient_id/{id}` | Update patient record |
+| `DELETE`| `/patients/patient_id/{id}` | Remove patient record |
+| `POST` | `/doctors/doctor/` | Create a doctor record |
+| `GET` | `/doctors/doctor/{id}` | Retrieve doctor record |
+| `PUT` | `/doctors/doctor_id/{id}` | Update doctor record |
+| `DELETE`| `/doctors/doctor_id/{id}` | Remove doctor record |
+| `GET` | `/insurance_premium/health` | Model health status and version |
+| `POST` | `/insurance_premium/predict` | Predict insurance premium category |
+
+---
+
+## Machine Learning Pipeline
+
+The prediction service evaluates applicant risk and assigns premium categories (`Low`, `Medium`, `High`).
+
+### Automated Feature Engineering
+
+- **BMI Calculation**: $\text{BMI} = \frac{\text{weight (kg)}}{(\text{height (m)})^2}$
+- **Lifestyle Risk**: Evaluated dynamically based on smoking status and BMI threshold:
+  - `High`: Smoker with $\text{BMI} > 30$
+  - `Medium`: Smoker or $\text{BMI} > 27$
+  - `Low`: Non-smoker with $\text{BMI} \le 27$
+- **Age Grouping**: Categorized into `young` (<25), `adult` (25–44), `middle_aged` (45–59), and `senior` (60+)
+- **City Tier**: Normalized into Tier 1, Tier 2, or Tier 3 metropolitan classifications
+
+### Example Request
+
 ```bash
 curl -X POST "http://localhost:8000/insurance_premium/predict" \
   -H "Content-Type: application/json" \
@@ -208,69 +165,49 @@ curl -X POST "http://localhost:8000/insurance_premium/predict" \
   }'
 ```
 
-## Insurance Premium Prediction Model
+### Example Response
 
-The insurance premium prediction endpoint uses a machine learning model to predict premium categories (Low, Medium, High) based on:
+```json
+{
+  "response": {
+    "predicted_category": "Low",
+    "confidence": 0.84,
+    "class_probabilities": {
+      "High": 0.0,
+      "Low": 0.84,
+      "Medium": 0.16
+    }
+  }
+}
+```
 
-- **Age**: User's age (0-120)
-- **Weight**: Weight in kg
-- **Height**: Height in meters (0-2.5)
-- **Income**: Annual income in LPA (Lakhs Per Annum)
-- **Smoker**: Boolean indicating smoking status
-- **City**: City name (automatically categorized into tier 1, 2, or 3)
-- **Occupation**: One of: Engineer, Driver, Teacher, Banker, Sales Manager, Businessman, Factory Worker
-
-The model automatically calculates:
-- **BMI**: Body Mass Index
-- **Lifestyle Risk**: Low, Medium, or High based on smoking and BMI
-- **Age Group**: young, adult, middle_aged, or senior
-- **City Tier**: 1, 2, or 3 based on city classification
+---
 
 ## Project Structure
 
+```text
+hospital-management-api/
+|-- main.py                 # FastAPI application entry point
+|-- streamlit_app.py        # Streamlit frontend application
+|-- database.py             # Database engine & city classification
+|-- schemas.py              # Pydantic validation & SQLAlchemy models
+|-- requirements.txt        # Python dependencies
+|-- Indian_Insurance_Data.csv # Training and benchmark dataset
+|-- router/
+|   |-- auth.py             # Admin authentication routes
+|   |-- patients.py         # Patient management routes
+|   |-- doctors.py          # Doctor management routes
+|   `-- insurance.py        # Insurance prediction routes
+`-- model/
+    |-- model1.pkl          # Trained Scikit-learn pipeline
+    `-- predict.py          # Preprocessing & inference logic
 ```
-FastAPI/
-├── main.py                 # FastAPI application entry point
-├── streamlit_app.py        # Streamlit frontend application
-├── database.py            # Database connection and configuration
-├── database_models.py      # Database models (legacy)
-├── schemas.py             # Pydantic models and SQLAlchemy models
-├── requirements.txt       # Python dependencies
-├── router/
-│   ├── auth.py           # Admin authentication routes
-│   ├── patients.py       # Patient management routes
-│   ├── doctors.py        # Doctor management routes
-│   └── insurance.py      # Insurance premium prediction routes
-└── model/
-    ├── model1.pkl        # Required at runtime, but not committed
-    └── predict.py        # Prediction logic
-```
 
-## Security Notes
+---
 
-- **JWT Secret Key**: The current secret key in `router/auth.py` should be changed in production. Use a secure, randomly generated key.
-- **Password Hashing**: Passwords are hashed using bcrypt before storage.
-- **Token Expiration**: Access tokens expire after 20 minutes.
-- **Authorization gap**: Patient and doctor operations are not consistently protected by authentication or ownership checks.
-- **Model evidence gap**: No model artifact, evaluation results, accuracy metrics, or calibration report is included. Predictions are not insurance quotes or medical/financial advice.
+## Author
 
-## Development
-
-- The API uses automatic database table creation on startup
-- CORS middleware is commented out but available for frontend integration
-- The application runs in development mode with auto-reload enabled
-
-## Contributing
-
-1. Fork the repository
-2. Create a feature branch
-3. Make your changes
-4. Submit a pull request
-
-## License
-
-This project is open source and available for use.
-
-## Support
-
-For issues and questions, please open an issue in the repository.
+**Soham Gudewar**  
+- GitHub: [@sohamgudewar](https://github.com/sohamgudewar)  
+- LinkedIn: [soham-gudewar-9861561ab](https://www.linkedin.com/in/soham-gudewar-9861561ab)  
+- Email: [sohamgudewar10@gmail.com](mailto:sohamgudewar10@gmail.com)

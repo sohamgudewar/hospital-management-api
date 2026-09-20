@@ -1,33 +1,31 @@
+import os
 import pickle
 import pandas as pd
 
-# import the ml model
-with open('model/model1.pkl', 'rb') as f:
+MODEL_DIR = os.path.dirname(os.path.abspath(__file__))
+MODEL_PATH = os.path.join(MODEL_DIR, "model1.pkl")
+
+# Load the trained machine learning pipeline
+with open(MODEL_PATH, "rb") as f:
     model = pickle.load(f)
 
-# MLFlow
-MODEL_VERSION = '1.69.1'
+MODEL_VERSION = "1.0.0"
 
-# Get class labels from model (important for matching probabilities to class names)
+# Class labels for probability distribution
 class_labels = model.classes_.tolist()
 
 
 def predict_output(user_input: dict):
-
     df = pd.DataFrame([user_input])
 
-    # Predict the class
     predicted_class = model.predict(df)[0]
-
-    # Get probabilities for all classes
     probabilities = model.predict_proba(df)[0]
     confidence = max(probabilities)
 
-    # Create mapping: {class_name: probability}
-    class_probs = dict(zip(class_labels, map(lambda p: round(p, 4), probabilities)))
+    class_probs = dict(zip(class_labels, [round(float(p), 4) for p in probabilities]))
 
     return {
-        "predicted_category": predicted_class,
-        "confidence": round(confidence, 4),
+        "predicted_category": str(predicted_class),
+        "confidence": round(float(confidence), 4),
         "class_probabilities": class_probs
     }
